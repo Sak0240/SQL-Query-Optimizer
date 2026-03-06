@@ -1,0 +1,393 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap");
+
+:root {
+  --bg-page: #a8adba;
+  --shell-bg: linear-gradient(140deg,#f2f2f5 0%,#f4f1de 60%,#f0e7b1 100%);
+  --card-bg: #f6f5ef;
+  --ink: #121214;
+  --muted: #676b74;
+  --line: #dedbcc;
+  --accent-dark: #22252c;
+}
+
+/* ---------- GLOBAL ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html,body,#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin:0;
+  font-family:"Manrope","Segoe UI",sans-serif;
+  color:var(--ink);
+  background: radial-gradient(circle at 80% 8%, #c6c9d2 0%, var(--bg-page) 45%, #9da2af 100%);
+}
+
+.page-shell{
+  height:100vh;
+  width:100vw;
+}
+
+.dashboard-bg{
+  width:100%;
+  height:100%;
+  padding:20px 24px;
+  background:var(--shell-bg);
+}
+
+/* ---------- NAVBAR ---------- */
+
+.nav-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+
+.brand-pill{
+  padding:10px 18px;
+  border-radius:999px;
+  font-size:32px;
+  font-weight:600;
+  background:rgba(248,248,248,.84);
+  border:1px solid #d3d0bf;
+}
+
+.nav-cluster{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(255,255,255,.5);
+  border:1px solid #e8e5d8;
+  border-radius:999px;
+  padding:8px;
+}
+
+.nav-links{
+  display:flex;
+  gap:4px;
+}
+
+.nav-link{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  color:#3a3c42;
+  padding:10px 14px;
+  border-radius:999px;
+}
+
+.nav-link.active{
+  background:var(--accent-dark);
+  color:white;
+}
+
+.nav-actions{
+  display:flex;
+  gap:8px;
+}
+
+.icon-btn{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:white;
+}
+
+/* ---------- DASHBOARD LAYOUT ---------- */
+
+.dashboard-layout{
+  height:calc(100vh - 118px);
+}
+
+.query-stack{
+  display:grid;
+  gap:14px;
+}
+
+.panel-card{
+  background:var(--card-bg);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:16px;
+}
+
+.panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.panel-head h3{
+  margin:0;
+  font-size:22px;
+  font-weight:600;
+}
+
+.panel-tag{
+  font-size:12px;
+  font-weight:700;
+  background:#f0cf58;
+  border-radius:999px;
+  padding:6px 10px;
+}
+
+/* ---------- BUTTONS ---------- */
+/* ---------- BUTTONS ---------- */
+
+.analyze-btn,
+.optimize-btn,
+.cost-optimize-btn{
+  border:0;
+  border-radius:999px;   /* rounded pill */
+  padding:11px 18px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.analyze-btn{
+  margin-top:12px;
+  color:#fff;
+  background:var(--accent-dark);
+}
+
+.optimize-btn{
+  width:100%;
+  margin-top:14px;
+  color:#fff;
+  background:var(--accent-dark);
+}
+
+.cost-optimize-btn{
+  margin-top:12px;
+  width:100%;
+  color:#2a2d34;
+  background:#f0cf58;
+}
+
+.analyze-btn:disabled,
+.optimize-btn:disabled,
+.cost-optimize-btn:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+/* ---------- QUERY EDITOR ---------- */
+
+.editor-card{
+  display:flex;
+  flex-direction:column;
+}
+.editor-wrapper{
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid #dedbcc;
+}
+/* ---------- PERFORMANCE GRAPH ---------- */
+
+.performance-chart-wrap{
+  width:160px;
+  height:160px;
+  margin:auto;
+}
+
+.performance-chart-wrap canvas{
+  width:100%!important;
+  height:100%!important;
+  will-change:transform;
+}
+
+.score-label{
+  text-align:center;
+  margin-top:10px;
+  font-weight:600;
+}
+
+/* ---------- COST GRAPH ---------- */
+
+.cost-track{
+  height:18px;
+  background:#eee;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.cost-fill{
+  height:100%;
+  width:0%;
+  transition:width .6s ease;
+}
+
+.cost-label{
+  margin-top:8px;
+}
+
+/* ---------- EXECUTION PANEL ---------- */
+
+.execution-panel{
+  padding:20px;
+  border-radius:12px;
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(10px);
+}
+
+.metric-row{
+  border:1px solid #ded9c7;
+  border-radius:14px;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:10px;
+}
+
+.metric-row span{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.metric-row strong{
+  font-size:14px;
+}
+
+/* ---------- SUGGESTIONS ---------- */
+
+.suggestions-card{
+  display:flex;
+  flex-direction:column;
+}
+
+.suggestions-list{
+  margin:10px 0 0;
+  padding-left:18px;
+}
+
+.suggestions-list li{
+  margin-bottom:8px;
+  line-height:1.5;
+}
+
+.index-suggestion{
+  background:#f4f4f4;
+  border-radius:8px;
+  padding:6px 10px;
+  font-family:monospace;
+  font-size:12px;
+}
+
+.error-text{
+  margin-top:10px;
+  color:#b23a2b;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* ---------- ANALYTICS ---------- */
+
+.analytics-grid{
+  display:grid;
+  gap:14px;
+  height:calc(100vh - 118px);
+  overflow:auto;
+}
+
+.comparison-table{
+  overflow:hidden;
+  min-height:260px;
+}
+
+.compare-grid{
+  display:grid;
+  grid-template-columns:1.2fr 1.6fr 1.6fr 1fr;
+  gap:12px;
+  padding:12px 4px;
+  border-top:1px solid #ddd8c7;
+}
+
+.compare-head{
+  border-top:0;
+  font-weight:700;
+}
+
+.compare-label{
+  font-weight:600;
+}
+
+.query-preview{
+  background:#ffffffa8;
+  border:1px solid #ded9c7;
+  border-radius:10px;
+  padding:8px;
+  font-family:Consolas,monospace;
+  font-size:12px;
+}
+
+.delta-good{
+  color:#216a3f;
+  font-weight:700;
+}
+
+.delta-bad{
+  color:#b23a2b;
+  font-weight:700;
+}
+
+/* ---------- DESKTOP GRID ---------- */
+
+@media (min-width:1000px){
+
+.dashboard-layout.has-results{
+  display:grid;
+  grid-template-columns:1.55fr .95fr;
+  gap:14px;
+}
+
+.right-stack{
+  display:grid;
+  gap:14px;
+}
+
+.right-top-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+}
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width:1000px){
+
+.dashboard-bg{
+  padding:14px;
+}
+
+.brand-pill{
+  font-size:26px;
+}
+
+.right-top-row{
+  grid-template-columns:1fr;
+}
+
+.compare-grid{
+  grid-template-columns:1fr;
+}
+
+.compare-head{
+  display:none;
+}
+}
