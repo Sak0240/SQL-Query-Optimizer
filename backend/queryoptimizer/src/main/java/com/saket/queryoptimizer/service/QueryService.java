@@ -31,6 +31,11 @@ public class QueryService {
         String type = "UNKNOWN";
         String key = "NONE";
         String cost = "LOW";
+        int rowsScanned = 0;
+        int executionTime = 0;
+        int memoryUsage = 0;
+        String complexity = "LOW";
+        int suggestionsApplied = suggestions.size();
 
         String lowerQuery = query.toLowerCase();
 
@@ -50,7 +55,11 @@ public class QueryService {
 
             suggestions.add("Table '" + table + "' not found. Did you mean '" + suggestion + "' ?");
 
-            return new QueryResponse(suggestions, type, key, cost, optimizedQuery, executionPlan, performanceScore);
+            return new QueryResponse(suggestions,
+                    type, key, cost, optimizedQuery,
+                    executionPlan,performanceScore, rowsScanned, executionTime,
+                    memoryUsage, complexity, suggestionsApplied
+            );
         }
 
         // ---------- Validate Column ----------
@@ -96,7 +105,18 @@ public class QueryService {
             for (Map<String, Object> row : result) {
 
                 int rows = Integer.parseInt(row.get("rows").toString());
+                rowsScanned = rows;
+                executionTime = rowsScanned / 50;
 
+                if (executionTime < 10) {
+                    executionTime = 10;
+                }
+                // ---------- memory usage ----------
+                memoryUsage = rowsScanned / 100;
+
+                if(memoryUsage < 1){
+                    memoryUsage = 1;
+                }
                 type = row.get("type").toString();
 
                 key = row.get("key") == null ? "NULL" : row.get("key").toString();
@@ -105,6 +125,16 @@ public class QueryService {
 
                 executionPlan.add("SCAN TABLE " + tableName);
 
+                // ---------- Calculate complexity ----------
+                if(lowerQuery.contains("join")){
+                    complexity = "HIGH";
+                }
+                else if(lowerQuery.contains("where")){
+                    complexity = "MEDIUM";
+                }
+                else{
+                    complexity = "LOW";
+                }
                 // ---------- Row scanning cost ----------
                 if (rows > 10000) {
 
@@ -191,7 +221,12 @@ public class QueryService {
                 cost,
                 optimizedQuery,
                 executionPlan,
-                performanceScore
+                performanceScore,
+                rowsScanned,
+                executionTime,
+                memoryUsage,
+                complexity,
+                suggestionsApplied
         );
     }
 
@@ -264,13 +299,12 @@ public class QueryService {
         executionPlan.add("OPTIMIZATION APPLIED");
 
         return new QueryResponse(
-                suggestions,
-                "OPTIMIZED",
-                "N/A",
-                "LOW",
-                optimizedQuery,
-                executionPlan,
-                scoreAfter
+                suggestions, "OPTIMIZED",
+                "N/A", "LOW", optimizedQuery, executionPlan, scoreAfter, 0,       // rowsScanned
+                5,                  // executionTime
+                1,                  // memoryUsage
+                "LOW",              // complexity
+                suggestions.size()  // suggestionsApplied
         );
     }
     // ---------------- COMPARE OPTIMIZE QUERY WITH ORIGINAL ONE ----------------

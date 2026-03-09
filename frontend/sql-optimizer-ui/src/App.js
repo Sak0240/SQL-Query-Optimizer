@@ -43,6 +43,7 @@ function App() {
   const [optimizedStats, setOptimizedStats] = useState(null);
   const [enteredQueryText, setEnteredQueryText] = useState("");
   const [optimizedQueryText, setOptimizedQueryText] = useState("");
+  const [copyState, setCopyState] = useState("idle");
 
   const hydrateResults = (data) => {
     setSuggestions(data.suggestions || []);
@@ -82,17 +83,37 @@ function App() {
       setApiError("");
 
       const sourceQuery = query;
-      const [analyzeResponse, optimizeResponse] = await Promise.all([
-        axios.post(`${API_BASE_URL}/query/analyze`, { query: sourceQuery }),
-        axios.post(`${API_BASE_URL}/query/optimize`, { query: sourceQuery }),
-      ]);
+
+      // Analyze original query
+      const analyzeResponse = await axios.post(
+        `${API_BASE_URL}/query/analyze`,
+        { query: sourceQuery }
+      );
+
+      // Get optimized query
+      const optimizeResponse = await axios.post(
+        `${API_BASE_URL}/query/optimize`,
+        { query: sourceQuery }
+      );
+
+      const optimizedQuery = optimizeResponse.data.optimizedQuery;
+
+      // Analyze optimized query
+      const optimizedAnalyze = await axios.post(
+        `${API_BASE_URL}/query/analyze`,
+        { query: optimizedQuery }
+      );
 
       hydrateResults(analyzeResponse.data);
+
       setOriginalStats(analyzeResponse.data);
-      setOptimizedStats(optimizeResponse.data);
+      setOptimizedStats(optimizedAnalyze.data);
+
       setEnteredQueryText(sourceQuery);
-      setOptimizedQueryText(optimizeResponse.data?.optimizedQuery || sourceQuery);
+      setOptimizedQueryText(optimizedQuery);
+
       setActivePage("analytics");
+
     } catch (error) {
       console.error(error);
       setApiError(getApiErrorMessage(error, "Optimize Query failed. Please try again."));
@@ -101,10 +122,36 @@ function App() {
     }
   };
 
+  const copyOptimizedQuery = async () => {
+    if (!optimizedQueryText.trim()) return;
+
+    try {
+      await navigator.clipboard.writeText(optimizedQueryText);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 1200);
+    } catch (error) {
+      console.error(error);
+      setCopyState("error");
+      setTimeout(() => setCopyState("idle"), 1600);
+    }
+  };
+
   const originalScore = originalStats?.performanceScore || 0;
   const optimizedScore = optimizedStats?.performanceScore || 0;
   const scoreDelta = optimizedScore - originalScore;
+  const originalRows = originalStats?.rowsScanned || 0;
+  const optimizedRows = optimizedStats?.rowsScanned || 0;
 
+  const originalTime = originalStats?.executionTime || 0;
+  const optimizedTime = optimizedStats?.executionTime || 0;
+
+  const originalMemory = originalStats?.memoryUsage || 0;
+  const optimizedMemory = optimizedStats?.memoryUsage || 0;
+
+  const originalComplexity = originalStats?.complexity || "";
+  const optimizedComplexity = optimizedStats?.complexity || "";
+
+  const suggestionsApplied = optimizedStats?.suggestionsApplied || 0;
   const originalCost = originalStats?.cost || "";
   const optimizedCost = optimizedStats?.cost || "";
   const costDelta = getCostRank(originalCost) - getCostRank(optimizedCost);
@@ -191,7 +238,19 @@ function App() {
                 <div className="compare-grid">
                   <div className="compare-label">Query</div>
                   <div className="query-preview">{enteredQueryText || "Not available"}</div>
-                  <div className="query-preview">{optimizedQueryText || "Not available"}</div>
+                  <div className="query-preview with-copy">
+                    <span>{optimizedQueryText || "Not available"}</span>
+                    <button
+                      type="button"
+                      className="copy-query-btn"
+                      onClick={copyOptimizedQuery}
+                      disabled={!optimizedQueryText}
+                      title={copyState === "copied" ? "Copied" : copyState === "error" ? "Copy failed" : "Copy optimized query"}
+                      aria-label="Copy optimized query"
+                    >
+                      {copyState === "copied" ? "ok" : "\u29C9"}
+                    </button>
+                  </div>
                   <div className="compare-diff">Text updated</div>
                 </div>
 
@@ -211,6 +270,46 @@ function App() {
                   <div className={costDelta >= 0 ? "delta-good" : "delta-bad"}>
                     {costDelta > 0 ? `Improved by ${costDelta} level` : costDelta === 0 ? "No change" : "Increased"}
                   </div>
+                </div>
+                <div className="compare-grid">
+                  <div className="compare-label">Rows Scanned</div>
+                  <div>{originalRows}</div>
+                  <div>{optimizedRows}</div>
+                  <div className="delta-good">
+                    {originalRows - optimizedRows}
+                  </div>
+                </div>
+
+                <div className="compare-grid">
+                  <div className="compare-label">Execution Time</div>
+                  <div>{originalTime} ms</div>
+                  <div>{optimizedTime} ms</div>
+                  <div className="delta-good">
+                    {originalTime - optimizedTime} ms faster
+                  </div>
+                </div>
+
+                <div className="compare-grid">
+                  <div className="compare-label">Memory Usage</div>
+                  <div>{originalMemory} MB</div>
+                  <div>{optimizedMemory} MB</div>
+                  <div className="delta-good">
+                    {originalMemory - optimizedMemory} MB reduced
+                  </div>
+                </div>
+
+                <div className="compare-grid">
+                  <div className="compare-label">Query Complexity</div>
+                  <div>{originalComplexity}</div>
+                  <div>{optimizedComplexity}</div>
+                  <div>No change</div>
+                </div>
+
+                <div className="compare-grid">
+                  <div className="compare-label">Suggestions Applied</div>
+                  <div>0</div>
+                  <div>{suggestionsApplied}</div>
+                  <div className="delta-good">+{suggestionsApplied}</div>
                 </div>
               </motion.section>
             )}
